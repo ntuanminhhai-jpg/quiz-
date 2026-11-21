@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI LÀ NGƯỜI HIỂU BÁC? — Trắc nghiệm Tư tưởng Hồ Chí Minh</title>
+  <meta
+    name="description"
+    content="Trò chơi trắc nghiệm Tư tưởng Hồ Chí Minh về xây dựng con người."
+  />
+  <!-- Font chữ tiếng Việt hiện đại, có fallback hệ thống khi chạy offline -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <!-- Lớp nền trang trí: ảnh nền ngẫu nhiên crossfade (BACKGROUNDS) hoặc nền đỏ - vàng - kem + họa tiết SVG -->
+  <div class="bg-scene" aria-hidden="true">
+    <div class="bg-photo bg-photo-layer" id="bgPhotoA"></div>
+    <div class="bg-photo bg-photo-layer" id="bgPhotoB"></div>
+    <div class="bg-photo-overlay"></div>
+
+    <!-- Họa tiết ngôi sao vàng 5 cánh và tia sáng mờ -->
+    <svg class="bg-star-svg" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="starGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#FFD700" stop-opacity="0.28" />
+          <stop offset="65%" stop-color="#FFD700" stop-opacity="0.06" />
+          <stop offset="100%" stop-color="#FFD700" stop-opacity="0" />
+        </radialGradient> 
+      </defs>
+      <circle cx="300" cy="300" r="290" fill="url(#starGlow)" />
+      <polygon
+        points="300,52 362,226 546,232 400,344 452,520 300,418 148,520 200,344 54,232 238,226"
+        fill="#FFD700"
+        fill-opacity="0.14"
+        stroke="#FFE680"
+        stroke-opacity="0.22"
+        stroke-width="2"
+      />
+    </svg>
+
+    <!-- Họa tiết hoa sen góc trái dưới -->
+    <svg class="bg-lotus bg-lotus-left" viewBox="0 0 320 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g fill="#FFE680" fill-opacity="0.14" stroke="#FFD700" stroke-opacity="0.26" stroke-width="1.5">
+        <path d="M160 28 C184 78 194 134 160 186 C126 134 136 78 160 28 Z" />
+        <path d="M160 186 C116 146 86 98 92 48 C134 68 156 120 160 186 Z" />
+        <path d="M160 186 C204 146 234 98 228 48 C186 68 164 120 160 186 Z" />
+        <path d="M160 186 C96 168 48 136 34 86 C86 94 132 132 160 186 Z" />
+        <path d="M160 186 C224 168 272 136 286 86 C234 94 188 132 160 186 Z" />
+        <path d="M160 190 C94 196 36 182 14 148 C68 142 120 160 160 190 Z" />
+        <path d="M160 190 C226 196 284 182 306 148 C252 142 200 160 160 190 Z" />
+      </g>
+    </svg>
+
+    <!-- Họa tiết hoa sen góc phải dưới -->
+    <svg class="bg-lotus bg-lotus-right" viewBox="0 0 320 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g fill="#FFE680" fill-opacity="0.14" stroke="#FFD700" stroke-opacity="0.26" stroke-width="1.5">
+        <path d="M160 28 C184 78 194 134 160 186 C126 134 136 78 160 28 Z" />
+        <path d="M160 186 C116 146 86 98 92 48 C134 68 156 120 160 186 Z" />
+        <path d="M160 186 C204 146 234 98 228 48 C186 68 164 120 160 186 Z" />
+        <path d="M160 186 C96 168 48 136 34 86 C86 94 132 132 160 186 Z" />
+        <path d="M160 186 C224 168 272 136 286 86 C234 94 188 132 160 186 Z" />
+        <path d="M160 190 C94 196 36 182 14 148 C68 142 120 160 160 190 Z" />
+        <path d="M160 190 C226 196 284 182 306 148 C252 142 200 160 160 190 Z" />
+      </g>
+    </svg>
+  </div>
+
+  <!-- Canvas pháo giấy vàng đỏ khi trả lời đúng -->
+  <canvas id="confettiCanvas" class="confetti-canvas" aria-hidden="true"></canvas>
+
+  <!-- Nút bật/tắt âm thanh ở góc trên bên phải -->
+  <button
+    type="button"
+    id="soundToggleBtn"
+    class="sound-toggle-btn"
+    aria-label="Tắt âm thanh"
+    aria-pressed="false"
+    title="Bật/tắt âm thanh"
+  >
+    <!-- Biểu tượng loa bật -->
+    <svg class="icon-sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" />
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+    </svg>
+    <!-- Biểu tượng loa tắt -->
+    <svg class="icon-sound-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" />
+      <line x1="23" y1="9" x2="17" y2="15" />
+      <line x1="17" y1="9" x2="23" y2="15" />
+    </svg>
+  </button>
+
+  <main class="app-shell">
+    <!-- Vị trí đầu trang cho ảnh minh họa Bác Hồ (tự động ẩn nếu không có assets/hinh-bac.jpg) -->
+    <div id="bacPortraitWrap" class="portrait-wrap" hidden>
+      <div class="portrait-ring">
+        <img id="bacPortraitImg" alt="Chủ tịch Hồ Chí Minh" />
+      </div>
+    </div>
+
+    <!-- MÀN 1: MÀN BÌA -->
+    <section id="coverScreen" class="screen cover-screen" aria-labelledby="coverTitle">
+      <div class="cover-card">
+        <div class="cover-emblem" aria-hidden="true">
+          <svg viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Ngôi sao vàng -->
+            <polygon
+              points="60,6 70,35 101,36 76,54 85,84 60,66 35,84 44,54 19,36 50,35"
+              fill="#FFD700"
+              stroke="#FFF3B0"
+              stroke-width="2"
+            />
+            <!-- Cánh sen cách điệu bên dưới -->
+            <path d="M60 94 C42 94 26 88 16 78 C32 76 48 82 60 94 Z" fill="#FFE680" fill-opacity="0.85" />
+            <path d="M60 94 C78 94 94 88 104 78 C88 76 72 82 60 94 Z" fill="#FFE680" fill-opacity="0.85" />
+          </svg>
+        </div>
+
+        <p class="cover-kicker">Chuyên đề Tư tưởng Hồ Chí Minh về xây dựng con người</p>
+        <h1 id="coverTitle" class="cover-title">AI LÀ NGƯỜI HIỂU BÁC?</h1>
+        <p class="cover-subtitle">Trò chơi trắc nghiệm Tư tưởng Hồ Chí Minh</p>
+
+        <div class="cover-meta" aria-label="Thông tin trò chơi">
+          <span class="meta-pill">10 câu hỏi trắc nghiệm</span>
+          <span class="meta-pill">Hỗ trợ phím tắt A–D / 1–4</span>
+        </div>
+
+        <button type="button" id="startBtn" class="btn-primary btn-start">
+          <span>BẮT ĐẦU</span>
+          <span class="btn-arrow" aria-hidden="true">→</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- MÀN 2: TRÒ CHƠI TRẮC NGHIỆM -->
+    <section id="quizScreen" class="screen quiz-screen" aria-label="Màn hình câu hỏi" hidden>
+      <!-- Thanh tiêu đề trên: nhãn Câu X/10, thanh tiến độ, điểm -->
+      <header class="quiz-header">
+        <div class="quiz-header-top">
+          <span id="questionCounter" class="question-counter">Câu 1/10</span>
+          <span id="liveScore" class="score-pill" aria-label="Điểm hiện tại">Điểm: 0</span>
+        </div>
+        <div
+          id="progressBar"
+          class="progress-track"
+          role="progressbar"
+          aria-label="Tiến độ trả lời câu hỏi"
+          aria-valuemin="1"
+          aria-valuemax="10"
+          aria-valuenow="1"
+        >
+          <div id="progressFill" class="progress-fill" style="width: 10%"></div>
+        </div>
+      </header>
+
+      <!-- Khung câu hỏi & 4 đáp án bố cục grid-template-areas -->
+      <div id="quizStage" class="quiz-grid">
+        <article class="question-card" aria-labelledby="questionText">
+          <div class="question-card-accent" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="#D71920">
+              <polygon points="12,2 14.9,8.6 22,9.2 16.6,13.9 18.2,21 12,17.3 5.8,21 7.4,13.9 2,9.2 9.1,8.6" />
+            </svg>
+          </div>
+          <h2 id="questionText" class="question-text"></h2>
+        </article>
+
+        <!-- Đáp án A (trái trên - đỏ) -->
+        <button type="button" class="answer-card answer-a" data-slot="0">
+          <span class="answer-badge" aria-hidden="true">A</span>
+          <span class="answer-text"></span>
+          <span class="answer-mark" aria-hidden="true"></span>
+        </button>
+
+        <!-- Đáp án B (trái dưới - xanh dương) -->
+        <button type="button" class="answer-card answer-b" data-slot="1">
+          <span class="answer-badge" aria-hidden="true">B</span>
+          <span class="answer-text"></span>
+          <span class="answer-mark" aria-hidden="true"></span>
+        </button>
+
+        <!-- Đáp án C (phải trên - vàng) -->
+        <button type="button" class="answer-card answer-c" data-slot="2">
+          <span class="answer-badge" aria-hidden="true">C</span>
+          <span class="answer-text"></span>
+          <span class="answer-mark" aria-hidden="true"></span>
+        </button>
+
+        <!-- Đáp án D (phải dưới - xanh lá) -->
+        <button type="button" class="answer-card answer-d" data-slot="3">
+          <span class="answer-badge" aria-hidden="true">D</span>
+          <span class="answer-text"></span>
+          <span class="answer-mark" aria-hidden="true"></span>
+        </button>
+      </div>
+
+      <!-- Thông báo trạng thái đúng/sai (aria-live) và nút sang câu tiếp -->
+      <footer class="quiz-footer">
+        <p
+          id="feedbackLive"
+          class="feedback-banner"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        ></p>
+
+        <div class="quiz-actions">
+          <button type="button" id="nextBtn" class="btn-primary btn-next" hidden>
+            CÂU TIẾP THEO →
+          </button>
+        </div>
+
+        <p class="shortcut-hint" aria-hidden="true">
+          Phím tắt: <strong>A–D</strong> hoặc <strong>1–4</strong> để chọn đáp án •
+          <strong>Enter</strong> / <strong>Space</strong> để sang câu tiếp
+        </p>
+      </footer>
+    </section>
+
+    <!-- MÀN 3: KẾT QUẢ -->
+    <section id="resultScreen" class="screen result-screen" aria-labelledby="resultScoreText" hidden>
+      <div class="result-card">
+        <div class="result-emblem" aria-hidden="true">
+          <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="60" cy="60" r="52" fill="#B3121E" stroke="#FFD700" stroke-width="5" />
+            <polygon
+              points="60,20 71,47 100,48 77,66 85,94 60,77 35,94 43,66 20,48 49,47"
+              fill="#FFD700"
+            />
+          </svg>
+        </div>
+
+        <p class="result-kicker">Hoàn thành trò chơi</p>
+        <h2 id="resultScoreText" class="result-score">Bạn đúng 0/10 câu</h2>
+        <div id="resultTierBadge" class="result-tier"></div>
+        <p id="resultComment" class="result-comment"></p>
+
+        <div id="resultDots" class="result-dots" aria-hidden="true"></div>
+
+        <button type="button" id="restartBtn" class="btn-primary btn-restart">
+          CHƠI LẠI
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <script src="./questions.js"></script>
+  <script src="./script.js"></script>
+</body>
+</html>
